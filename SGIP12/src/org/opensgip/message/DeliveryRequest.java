@@ -1,7 +1,7 @@
 package org.opensgip.message;
 
 public class DeliveryRequest extends AbstractMessage {
-	public class Body extends AbstractMessageBody {
+	public static class Body extends AbstractMessageBody {
 		public String getUserNumber() {
 			return userNumber;
 		}

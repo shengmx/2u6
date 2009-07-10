@@ -1,11 +1,11 @@
 package org.opensgip.message;
 
 public class SubmitResponse extends AbstractMessage {
-	public class Body extends SimpleResponseBody {
+	public static class Body extends SimpleResponseBody {
 		public Body() {
 			super();
 		}
-		public Body(long result, String reserve) {
+		public Body(short result, String reserve) {
 			super(result,reserve);
 		}
 	}
@@ -15,7 +15,7 @@ public class SubmitResponse extends AbstractMessage {
 		body = new Body();
 	}
 	
-	public SubmitResponse(long result, String reserve) {
+	public SubmitResponse(short result, String reserve) {
 		header = new MessageHeader();
 		
 		Body b = new Body(result, reserve);		

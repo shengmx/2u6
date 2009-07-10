@@ -1,7 +1,7 @@
 package org.opensgip.message;
 
 public class TraceResponse extends AbstractMessage {
-	public class Body extends AbstractMessageBody {
+	public static class Body extends AbstractMessageBody {
 		long count = 0;
 		long result = 0;
 		String nodeId = "";

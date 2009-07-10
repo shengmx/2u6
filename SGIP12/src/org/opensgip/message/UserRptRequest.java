@@ -1,7 +1,7 @@
 package org.opensgip.message;
 
 public class UserRptRequest extends AbstractMessage {
-	public class Body extends AbstractMessageBody {
+	public static class Body extends AbstractMessageBody {
 		String spNumber = "";
 		String userNumber = "";
 		long userCondition = 0;

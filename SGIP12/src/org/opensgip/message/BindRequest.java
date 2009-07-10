@@ -1,7 +1,7 @@
 package org.opensgip.message;
 
 import static org.opensgip.message.util.BytesOperation.asFixedLengthISO88591Bytes;
-import static org.opensgip.message.util.BytesOperation.asUnsignedBigInteger12Bytes;
+import static org.opensgip.message.util.BytesOperation.asSequence12Bytes;
 import static org.opensgip.message.util.BytesOperation.asUnsignedInt1Bytes;
 import static org.opensgip.message.util.BytesOperation.asUnsignedInt4Bytes;
 import static org.opensgip.message.util.BytesOperation.fromFixedLengthISO88591Bytes;
@@ -12,23 +12,23 @@ import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
+import org.opensgip.message.factory.SequenceNumberFactory;
 
 
-public class BindRequest extends AbstractMessage {
-	public static long SGIP_BIND = 0x1;
-	
+public class BindRequest extends AbstractMessage {		
 	public static class Encoder implements ProtocolEncoder {
 		public void encode(IoSession session, Object message,
 				ProtocolEncoderOutput out) throws Exception {
 			
 			BindRequest bindRequest = (BindRequest)message;	
 			
-			ByteBuffer buffer = ByteBuffer.allocate(20+41, false);
+			ByteBuffer buffer = ByteBuffer.allocate(MessageHeader.HEADER_BYTES_SIZE+Body.BODY_BYTES_SIZE, false);
 			
 			//encode header, 20 bytes
 			buffer.put(asUnsignedInt4Bytes(bindRequest.getHeader().getMessageLength()));
 			buffer.put(asUnsignedInt4Bytes(bindRequest.getHeader().getCommandId()));
-			buffer.put(asUnsignedBigInteger12Bytes(bindRequest.getHeader().getSequenceNumber()));
+			buffer.put(asSequence12Bytes(bindRequest.getHeader().getSequenceNumber()));
+			
 			
 			//encode body, 41 bytes
 			buffer.put(asUnsignedInt1Bytes(bindRequest.getBody().getLoginType()));
@@ -49,7 +49,7 @@ public class BindRequest extends AbstractMessage {
 		@Override
 		protected boolean doDecode(IoSession session, ByteBuffer in,
 				ProtocolDecoderOutput out) throws Exception {
-			if (in.remaining()>=20+41) {
+			if (in.remaining()>=MessageHeader.HEADER_BYTES_SIZE+41) {
 				int start = in.position();
 				
 				MessageHeader header = MessageHeader.tryDecodeHeader(SGIP_BIND, in);
@@ -76,7 +76,7 @@ public class BindRequest extends AbstractMessage {
 		private Body tryDecodeBody(ByteBuffer in) throws Exception {
 			int start = in.position();
 			
-			if (in.remaining()>=41) {
+			if (in.remaining()>=Body.BODY_BYTES_SIZE) {
 				try {
 					Body b = new Body();							
 					short loginType = in.getUnsigned();				
@@ -101,6 +101,7 @@ public class BindRequest extends AbstractMessage {
 	}
 	
 	public static class Body extends AbstractMessageBody {
+		static int BODY_BYTES_SIZE = 41;
 		short loginType = 0;
 		String loginName = "";
 		String loginPassword = "";
@@ -134,16 +135,24 @@ public class BindRequest extends AbstractMessage {
 	
 	public BindRequest() {
 		header = new MessageHeader();
+		header.setMessageLength(MessageHeader.HEADER_BYTES_SIZE+Body.BODY_BYTES_SIZE);
+		header.setCommandId(SGIP_BIND);
+		header.setSequenceNumber(SequenceNumberFactory.nextSequenceNumber());
 		body = new Body();		
 	}
 	
 	public BindRequest(MessageHeader header, Body body) {
 		this.header = header;
+		//TODO check command id
+		//TODO check message length
 		this.body = body;
 	}
 	
 	public BindRequest(short loginType,String loginName, String loginPassword, String reserve) {
 		header = new MessageHeader();
+		header.setMessageLength(MessageHeader.HEADER_BYTES_SIZE+Body.BODY_BYTES_SIZE);
+		header.setCommandId(SGIP_BIND);
+		header.setSequenceNumber(SequenceNumberFactory.nextSequenceNumber());
 		
 		Body b = new Body();
 		b.setLoginType(loginType);

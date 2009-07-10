@@ -53,4 +53,16 @@ public class IPAIClient {
 			throws Exception {
 
 	}
+	
+	public static void main(String[] args) {
+		IPAIClient client = new IPAIClient("localhost", 8801);
+		client.connect();
+		BindRequest bindRequest = new BindRequest();
+		bindRequest.getBody().setLoginType((short)1);
+		bindRequest.getBody().setLoginName("sh10655811");
+		bindRequest.getBody().setLoginPassword("1234");
+		client.sendRequest(bindRequest);
+		client.disconnect();
+		
+	}
 }

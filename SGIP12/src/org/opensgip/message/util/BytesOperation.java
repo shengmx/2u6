@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
 import org.apache.mina.common.ByteBuffer;
+import org.opensgip.message.MessageHeader.Sequence;
 
 
 public class BytesOperation {
@@ -13,7 +14,8 @@ public class BytesOperation {
 		byte[] result = new byte[1];
 		ByteBuffer bb = ByteBuffer.allocate(2);
 		bb.putShort(value);
-		bb.get(result, 1, 1);
+		bb.position(1);
+		bb.get(result);
 		return result;
 	}
 	
@@ -21,7 +23,8 @@ public class BytesOperation {
 		byte[] result = new byte[2];
 		ByteBuffer bb = ByteBuffer.allocate(4);
 		bb.putInt(value);
-		bb.get(result, 2, 2);
+		bb.position(2);
+		bb.get(result);
 		return result;
 	}	
 	
@@ -29,19 +32,23 @@ public class BytesOperation {
 		byte[] result = new byte[4];
 		ByteBuffer bb = ByteBuffer.allocate(8);
 		bb.putLong(value);
-		bb.get(result, 4, 4);
+		bb.position(4);
+		bb.get(result);
 		return result;
 	}
 	
-	public static byte[] asUnsignedBigInteger12Bytes(BigInteger bint) {
-		if (bint.compareTo(ZERO)<0) throw new IllegalArgumentException("Negative Input " + bint + " is not allowd. ");
+	public static byte[] asSequence12Bytes(Sequence seq) {		
+		ByteBuffer bf = ByteBuffer.allocate(12);
+		
+		bf.put(asUnsignedInt4Bytes(seq.getNodeId()));
+		bf.put(asUnsignedInt4Bytes(seq.getTimestamp()));
+		bf.put(asUnsignedInt4Bytes(seq.getCount()));		
 		
 		byte[] result = new byte[12];
-		for(int i=0;i<result.length;i++) result[i] = 0;
 		
-		byte[] ba = bint.toByteArray();
-		System.arraycopy(ba, 0, result, result.length - ba.length, ba.length);
-				
+		bf.rewind();
+		bf.get(result);
+		
 		return result;
 	}	
 	
@@ -73,9 +80,25 @@ public class BytesOperation {
 		return result;
 	}
 	
-	public static BigInteger from3BytesToBigInteger(byte[] bytes) {
-		return new BigInteger(bytes);
+	public static Sequence from12BytesToSequence(byte[] bytes) {	
+		if (bytes.length!=12) throw new  IllegalArgumentException("input bytes length must be 12");
+		
+		Sequence seq = new Sequence();
+		
+		ByteBuffer bf = ByteBuffer.allocate(bytes.length);		
+		bf.put(bytes);
+		
+		bf.rewind();
+		long nodeId = bf.getUnsignedInt();
+		long timestamp = bf.getUnsignedInt();
+		long count = bf.getUnsignedInt();
+		seq.setNodeId(nodeId);
+		seq.setTimestamp(timestamp);
+		seq.setCount(count);
+		
+		return seq;
 	}
+	
 	
 	public static String fromFixedLengthISO88591Bytes(ByteBuffer in, int length) throws Exception {
 		byte[] lengthBytes = new byte[length];
@@ -88,4 +111,6 @@ public class BytesOperation {
 		}
 		return result;
 	}
+	
+
 }

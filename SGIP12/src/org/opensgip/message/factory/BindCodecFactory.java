@@ -4,6 +4,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.opensgip.message.BindRequest;
+import org.opensgip.message.BindResponse;
 
 
 public class BindCodecFactory implements ProtocolCodecFactory {
@@ -13,12 +14,12 @@ public class BindCodecFactory implements ProtocolCodecFactory {
 	public BindCodecFactory(boolean client) {
 		if (client) {
 			encoder = new BindRequest.Encoder();
-			//decoder = new BindResponse.Decoder();
+			decoder = new BindResponse.Decoder();
 		} else {
-			//encoder = new BindResponse.Encoder();
+			encoder = new BindResponse.Encoder();
 			decoder = new BindRequest.Decoder();
 		}
-	}	
+	}
 	
 	public ProtocolDecoder getDecoder() throws Exception {
 		return decoder;

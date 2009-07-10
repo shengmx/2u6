@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SubmitRequest extends AbstractMessage {
-	public class Body extends AbstractMessageBody {
+	public static class Body extends AbstractMessageBody {
 		String spNumber = "";
 		String chargeNumber = "";
 		long userCount = 1;

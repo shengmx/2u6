@@ -1,7 +1,7 @@
 package org.opensgip.message;
 
 public class ReportRequest extends AbstractMessage {
-	public class Body extends AbstractMessageBody {
+	public static class Body extends AbstractMessageBody {
 		long submitSequenceNumber = 0;
 		long reportType = 0;
 		String userNumber = "";
